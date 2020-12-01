@@ -9,7 +9,8 @@ use Illuminate\Support\Facades\Validator;
 
 class ProductController extends Controller
 {
-    public function __construct() {
+    public function __construct()
+    {
         $this->middleware('roleUser:Buyer')->only(['show', 'index']);
         $this->middleware('roleUser:Seller')->except(['index']);
     }
@@ -22,7 +23,7 @@ class ProductController extends Controller
     public function index()
     {
         $product = Product::all();
-        if($product)
+        if ($product)
             return response()->json([
                 'success' => true,
                 'message' => 'Get data success',
@@ -32,14 +33,25 @@ class ProductController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Get data failed',
-                'data' => $healthAgencies,
+                'data' => $product,
             ], 200);
     }
 
     public function getOwnProduct(User $user)
     {
         $product = Product::where('user_id', $user->id)->get();
-        return response()->json($product, 200);
+        if ($product)
+            return response()->json([
+                'success' => true,
+                'message' => 'Get product data success',
+                'data' => $product,
+            ], 200);
+        else
+            return response()->json([
+                'success' => false,
+                'message' => 'Get product data failed',
+                'data' => $product,
+            ], 200);
     }
 
     /**
@@ -66,7 +78,7 @@ class ProductController extends Controller
             'price' => 'required|numeric|min:1',
         ]);
 
-        if($validator->fails()){
+        if ($validator->fails()) {
             return response()->json($validator->errors(), 400);
         }
 
@@ -77,7 +89,7 @@ class ProductController extends Controller
             'price' => $request->price,
         ]);
 
-        if($isStored)
+        if ($isStored)
             return response()->json([
                 'success' => true,
                 'message' => 'Add product successfully!',
@@ -128,7 +140,7 @@ class ProductController extends Controller
             'price' => 'required|numeric|min:1',
         ]);
 
-        if($validator->fails()){
+        if ($validator->fails()) {
             return response()->json($validator->errors(), 400);
         }
 
@@ -139,7 +151,7 @@ class ProductController extends Controller
                 'price' => $request->price,
             ]);
 
-        if($isUpdate)
+        if ($isUpdate)
             return response()->json([
                 'success' => true,
                 'message' => 'update product successfully!',
@@ -165,11 +177,13 @@ class ProductController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Delete product successfully!',
+                'data' => $product
             ]);
         } else {
             return response()->json([
                 'success' => false,
                 'message' => 'Delete product failed!',
+                'data' => $product
             ], 500);
         }
     }
