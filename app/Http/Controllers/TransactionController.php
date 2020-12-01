@@ -11,7 +11,8 @@ use Illuminate\Support\Facades\Validator;
 
 class TransactionController extends Controller
 {
-    public function __construct() {
+    public function __construct()
+    {
         $this->middleware('roleUser:Buyer');
     }
 
@@ -23,13 +24,35 @@ class TransactionController extends Controller
     public function index()
     {
         $transactions = Transaction::all();
-        return response()->json($transactions, 200);
+        if ($transactions)
+            return response()->json([
+                'success' => true,
+                'message' => 'Get data success',
+                'data' => $transactions,
+            ], 200);
+        else
+            return response()->json([
+                'success' => false,
+                'message' => 'Get data failed',
+                'data' => $transactions,
+            ], 200);
     }
 
     public function getOwnTransaction(User $user)
     {
         $transactions = Transaction::where('user_id', $user->id)->get();
-        return response()->json($transactions, 200);
+        if ($transactions)
+            return response()->json([
+                'success' => true,
+                'message' => 'Get transactions data success',
+                'data' => $transactions,
+            ], 200);
+        else
+            return response()->json([
+                'success' => false,
+                'message' => 'Get transactions data failed',
+                'data' => $transactions,
+            ], 200);
     }
 
 
@@ -54,10 +77,10 @@ class TransactionController extends Controller
         $stock = Product::find($request->product_id)->stock;
         $validator = Validator::make($request->all(), [
             'product_id' => 'required|numeric',
-            'quantity' => 'required|numeric|min:1|max:'.$stock,
+            'quantity' => 'required|numeric|min:1|max:' . $stock,
         ]);
 
-        if($validator->fails()){
+        if ($validator->fails()) {
             return response()->json($validator->errors(), 400);
         }
 
@@ -75,7 +98,7 @@ class TransactionController extends Controller
             'date' => Carbon::now(),
         ]);
 
-        if($isStored)
+        if ($isStored)
             return response()->json([
                 'success' => true,
                 'message' => 'Transaction successfully!',
